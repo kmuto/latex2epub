@@ -95,5 +95,5 @@ latexcmd: platex --kanji=utf8
 dvipscmd: dvips -q -S1 -i -E -j0
 
 # デバッグ用
-basedebug: true
+#basedebug: true
 # debug: true
