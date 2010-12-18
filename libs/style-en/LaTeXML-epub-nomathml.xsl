@@ -24,7 +24,7 @@
 
   <xsl:output method="xml"
 	      doctype-public = "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN"
-	      doctype-system = "http://www.w3c.org/TR/MathML2/dtd/xhtml-math11-f.dtd"
+	      doctype-system = "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd"
 	      media-type     = 'application/xhtml+xml'
 	      encoding       = 'utf-8'
 	      indent         = "yes"/>
@@ -49,7 +49,7 @@
 <xsl:include href="LaTeXML-inline-xhtml.xsl"/>
 <xsl:include href="LaTeXML-block-xhtml.xsl"/>
 <xsl:include href="LaTeXML-para-xhtml.xsl"/>
-<xsl:include href="LaTeXML-math-mathml.xsl"/>
+<xsl:include href="LaTeXML-math-image.xsl"/>
 <xsl:include href="LaTeXML-tabular-xhtml.xsl"/>
 <xsl:include href="LaTeXML-picture-svg.xsl"/>
 <xsl:include href="LaTeXML-structure-xhtml.xsl"/>

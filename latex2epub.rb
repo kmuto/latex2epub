@@ -7,8 +7,12 @@ require 'pathname'
 require 'rexml/document'
 include REXML
 
-$LOAD_PATH.unshift("/home/kmuto/review/lib")
-require 'epubmaker'
+begin
+  require 'epubmaker'
+rescue LoadError
+  $LOAD_PATH.unshift("#{ENV["HOME"]}/review/lib")
+  require 'epubmaker'
+end
 
 def main
   @params = {
@@ -16,7 +20,10 @@ def main
     "secnolevel" => 2,
     "latexml" => "latexml --quiet", # command and options
     "latexmlpost" => "latexmlpost --split", # command and options
+    "latex2epubdir" => Pathname.new(__FILE__).realpath.dirname,
+    "mathml" => nil,
   }
+STDERR.puts @params["latex2epubdir"]
 
   if ARGV.size != 2
     STDERR.puts <<EOT
@@ -30,7 +37,7 @@ EOT
   @epub = EPUBMaker.new(2, @params)
   bookname = @params["bookname"]
 
-  if File.exist?("#{bookname}.epub")
+  if File.exist?("#{bookname}.epub") && (@params["debug"].nil? && @params["basedebug"].nil?)
     STDERR.puts "#{bookname}.epub exists. Please remove or rename it first."
     exit 1
   end
@@ -39,18 +46,23 @@ EOT
   xmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xml')
   xhtmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xhtml')
   
-  basetmp = Dir.mktmpdir
+  basetmp = "out"
+  basetmp = Dir.mktmpdir if @params["basedebug"].nil?
 
   fork {
     exec("#{@params['latexml']} --destination=#{basetmp}/#{xmlfile} #{texfile}")
   }
   Process.waitall
 
+  mathparams = @params["mathml"].nil? ? "--mathimages --stylesheet=#{@params["latex2epubdir"]}/libs/style-#{@params["language"]}/LaTeXML-epub-nomathml.xsl" :
+    "--stylesheet=#{@params["latex2epubdir"]}/libs/style-#{@params["language"]}/LaTeXML-epub.xsl"
+
+  # FIXME: needs to replace pool also...
   fork {
-    exec("#{@params['latexmlpost']} --format=xhtml --sourcedirectory=#{File.dirname(texfile)} --destination=#{basetmp}/#{xhtmlfile} #{basetmp}/#{xmlfile}")
+    exec("#{@params['latexmlpost']} --format=xhtml #{mathparams} --sourcedirectory=#{File.dirname(texfile)} --destination=#{basetmp}/#{xhtmlfile} #{basetmp}/#{xmlfile}")
   }
   Process.waitall
-  File.unlink("#{basetmp}/#{xmlfile}")
+  File.unlink("#{basetmp}/#{xmlfile}") if @params["basedebug"].nil?
 
   @epub.data.push(Ec.new({ "href" => xhtmlfile,
                            "title" => @params["title"],
@@ -65,7 +77,7 @@ EOT
   Dir.mkdir(bookname) unless @params["debug"].nil?
 
   @epub.makeepub("#{bookname}.epub", basetmp, epubtmpdir)
-  FileUtils.rm_r(basetmp)
+  FileUtils.rm_r(basetmp) if @params["basedebug"].nil?
 end
 
 def importotherfiles(dir, registered, base=nil)
@@ -75,7 +87,12 @@ def importotherfiles(dir, registered, base=nil)
     if FileTest.directory?("#{dir}/#{f}")
       importotherfiles("#{dir}/#{f}", registered, base) 
     else
-      @epub.data.push(Ec.new({ "href" => "#{dir.sub(base, '')}#{f}"}))
+      dir.chop! if dir =~ /\/\Z/
+      if base.nil?
+        @epub.data.push(Ec.new({ "href" => "#{dir}/#{f}"}))
+      else
+        @epub.data.push(Ec.new({ "href" => "#{dir.sub(base, '')}/#{f}"}))
+      end
     end
   end
 end

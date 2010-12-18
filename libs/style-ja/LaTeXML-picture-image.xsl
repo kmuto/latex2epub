@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /=====================================================================\ 
-|  LaTeXML-math-image.xsl                                             |
-|  Convert math to images for html                                    |
+|  LaTeXML-picture-image.xsl                                          |
+|  Converting pictures to images for html                             |
 |=====================================================================|
 | Part of LaTeXML:                                                    |
 |  Public domain software, produced as part of work done by the       |
@@ -18,10 +18,8 @@
     xmlns:ltx = "http://dlmf.nist.gov/LaTeXML"
     exclude-result-prefixes="ltx">
 
-  <!-- could dump a tex form or something? -->
-  <xsl:template match="ltx:Math"/>
-
-  <xsl:template match="ltx:Math[@imagesrc]">
+  <xsl:template match="ltx:picture"/>
+  <xsl:template match="ltx:picture[@imagesrc]">
     <img src="{@imagesrc}" width="{@imagewidth}" height="{@imageheight}" alt="{@tex}" class='math'/>
   </xsl:template>
 
