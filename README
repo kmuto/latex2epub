@@ -1,0 +1,7 @@
+latex2epub.rb
+
+needs:
+  epubmaker.rb and uuid.rb. review.git has them. (git://github.com/kmuto/review.git)
+  LaTeX environment; To use Japanese, you have to setup ptexlive environment.
+  Ghostscript.
+  dvips.
