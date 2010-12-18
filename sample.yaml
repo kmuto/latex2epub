@@ -6,7 +6,7 @@ bookname: sample
 # 記述言語
 language: ja
 # 書名
-title: ReVIEW EPUBのサンプル
+title: LaTeX2EPUBのサンプル
 
 # 固有IDに使用するドメイン。指定しない場合には、時刻に基づくランダムUUIDが入る
 # urnid: urn:uid:http://example.com/some-book-title/1.0.2/
@@ -48,6 +48,7 @@ aut: Kenshi Muto
 # a-trl, trl: 翻訳者
 
 # rights: 権利表記
+rights: 2010 Kenshi Muto
 # date: 刊行日(省略した場合は実行時の日付)
 # description: 説明
 # subject: 短い説明用タグ。配列で複数指定可
@@ -58,6 +59,7 @@ aut: Kenshi Muto
 # coverage: 内容の範囲や領域(複数指定可)
 
 # htmlext: HTMLファイルの拡張子(省略した場合はhtml)
+htmlext: xhtml
 # cover: カバーページのファイル名(省略した場合はbookname.xhtmlになる)
 #
 # coverimage: カバー用画像
@@ -85,7 +87,13 @@ ncxindent:
 # 奥付を作成するか。デフォルトでは作成されない。trueを指定するとデフォルトの奥付、ファイル名を指定するとそれがcolophon.xhtmlとしてコピーされる(data配列にも指定しておく必要がある)
 # colophon: true
 # pubhistory: 奥付履歴
+# 数式にMathMLを使うか。指定しない場合は画像化する
+# mathml: true
+# 数式画像作成時に使うコマンド。デフォルトはlatexなので、jsarticleなどを使うときはplatexを指定
+latexcmd: platex --kanji=utf8
+# 数式画像作成時に使うコマンド。
+dvipscmd: dvips -q -S1 -i -E -j0
 
-# XHTML生成後に実行するプログラム。$1:HTMLの生成されたディレクトリ $2:ReVIEWファイルのあるディレクトリ $3:起動時指定のyamlファイル名
-# posthook: hook.sh
+# デバッグ用
 basedebug: true
+# debug: true

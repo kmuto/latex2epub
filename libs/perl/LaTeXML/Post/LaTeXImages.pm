@@ -9,6 +9,7 @@
 # | Bruce Miller <bruce.miller@nist.gov>                        #_#     | #
 # | http://dlmf.nist.gov/LaTeXML/                              (o o)    | #
 # \=========================================================ooo==U==ooo=/ #
+# Modified 2010 Kenshi Muto <kmuto@debian.org>
 
 package LaTeXML::Post::LaTeXImages;
 use strict;
@@ -24,6 +25,7 @@ use base qw(LaTeXML::Post);
 # Other silly constants that might want changing?
 ##our $TMP = '/tmp';
 our $LATEXCMD='latex'; #(or elatex)
+$LATEXCMD=$ENV{"LATEXMLLATEXCMD"} if defined($ENV{"LATEXMLLATEXCMD"});
 
 # Usefull DVIPS options:
 #  -q  : run quietly
@@ -33,6 +35,7 @@ our $LATEXCMD='latex'; #(or elatex)
 #  -E   :  crop each page close to the `ink'.
 #  -j0  : don't subset fonts; silly really, but some font tests are making problems!
 our $DVIPSCMD='dvips -q -S1 -i -E -j0';
+$DVIPSCMD=$ENV{"LATEXMLDVIPSCMD"} if defined($ENV{"LATEXMLDVIPSCMD"});
 
 # Options:
 #   source         : (dir)

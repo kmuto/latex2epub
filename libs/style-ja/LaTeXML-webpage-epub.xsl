@@ -38,8 +38,6 @@ Modified 2010 Kenshi Muto <kmuto@debian.org>
     </xsl:text>
     <title>
       <xsl:value-of select="normalize-space(*/ltx:title)"/>
-      <xsl:for-each select="//ltx:navigation/ltx:ref[@class='up']"
-		    > in <xsl:value-of select="@title"/></xsl:for-each>
     </title>
     <xsl:text>
     </xsl:text>

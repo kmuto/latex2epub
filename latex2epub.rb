@@ -22,8 +22,9 @@ def main
     "latexmlpost" => "latexmlpost --split", # command and options
     "latex2epubdir" => Pathname.new(__FILE__).realpath.dirname,
     "mathml" => nil,
+    "latexcmd" => "latex",
+    "dvipscmd" => "dvips -q -S1 -i -E -j0",
   }
-STDERR.puts @params["latex2epubdir"]
 
   if ARGV.size != 2
     STDERR.puts <<EOT
@@ -46,8 +47,12 @@ EOT
   xmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xml')
   xhtmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xhtml')
   
-  basetmp = "out"
+  basetmp = "output"
   basetmp = Dir.mktmpdir if @params["basedebug"].nil?
+
+  ENV["PERL5LIB"] = "#{@params["latex2epubdir"]}/libs/perl"
+  ENV["LATEXMLLATEXCMD"] = @params["latexcmd"]
+  ENV["LATEXMLDVIPSCMD"] = @params["dvipscmd"]
 
   fork {
     exec("#{@params['latexml']} --destination=#{basetmp}/#{xmlfile} #{texfile}")
@@ -68,10 +73,11 @@ EOT
                            "title" => @params["title"],
                            "level" => 1,
                          }))
-  registered = tocparse("#{basetmp}/#{xhtmlfile}")
-  registered.push(xhtmlfile)
 
-  importotherfiles(basetmp, registered, basetmp)
+  @registered = [xhtmlfile]
+  tocparse(basetmp, xhtmlfile)
+
+  importotherfiles(basetmp, basetmp)
 
   epubtmpdir = @params["debug"].nil? ? nil : "#{Dir.pwd}/#{bookname}"
   Dir.mkdir(bookname) unless @params["debug"].nil?
@@ -80,38 +86,41 @@ EOT
   FileUtils.rm_r(basetmp) if @params["basedebug"].nil?
 end
 
-def importotherfiles(dir, registered, base=nil)
+def importotherfiles(dir, base=nil)
   # loop and register
   Dir.foreach(dir) do |f|
-    next if f =~ /\A\./ || registered.include?(f)
+    next if f =~ /\A\./ || @registered.include?(f)
+    next if f =~ /\.cache\Z/ || f =~ /\.xml\Z/
     if FileTest.directory?("#{dir}/#{f}")
-      importotherfiles("#{dir}/#{f}", registered, base) 
+      importotherfiles("#{dir}/#{f}", base) 
     else
       dir.chop! if dir =~ /\/\Z/
       if base.nil?
         @epub.data.push(Ec.new({ "href" => "#{dir}/#{f}"}))
       else
-        @epub.data.push(Ec.new({ "href" => "#{dir.sub(base, '')}/#{f}"}))
+        if dir == base
+          @epub.data.push(Ec.new({ "href" => "#{f}"}))
+        else
+          @epub.data.push(Ec.new({ "href" => "#{dir.sub(base + "/", '')}/#{f}"}))
+        end
       end
     end
   end
 end
 
-def tocparse(topfile)
+def tocparse(base, file)
   # parse toppage file and get toc
-  registered = []
-  doc = Document.new(File.new(topfile)).root
-  doc.each_element(%Q(//div[@class="main"]/div/div/ul[@class="toc"])) do |e|
-    e.each_element("li/a") do |e2|
-      @epub.data.push(Ec.new({
-                               "href" => e2.attributes["href"],
-                               "title" => e2.text.to_s,
-                               "level" => 1, # FIXME
+  doc = Document.new(File.new("#{base}/#{file}")).root
+  doc.each_element(%Q(//head/link[@rel="next"])) do |e|
+    level = e.attributes["href"].split(".").size - 1
+    @epub.data.push(Ec.new({
+                               "href" => e.attributes["href"],
+                               "title" => e.attributes["title"],
+                               "level" => level,
                              }))
-      registered << e2.attributes["href"]
-    end
+    @registered << e.attributes["href"]
+    tocparse(base, e.attributes["href"])
   end
-  return registered
 end
 
 main
