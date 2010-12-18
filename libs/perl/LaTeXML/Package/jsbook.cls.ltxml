@@ -1,0 +1,120 @@
+# -*- CPERL -*-
+# /=====================================================================\ #
+# |  jsbook                                                             | #
+# | Implementation for LaTeXML                                          | #
+# |=====================================================================| #
+# | Part of LaTeXML:                                                    | #
+# |  Public domain software, produced as part of work done by the       | #
+# |  United States Government & not subject to copyright in the US.     | #
+# |---------------------------------------------------------------------| #
+# | Bruce Miller <bruce.miller@nist.gov>                        #_#     | #
+# | http://dlmf.nist.gov/LaTeXML/                              (o o)    | #
+# \=========================================================ooo==U==ooo=/ #
+# Modified 2010 Kenshi Muto <kmuto@debian.org>
+use strict;
+use LaTeXML::Package;
+package LaTeXML::Package::Pool;
+
+
+#**********************************************************************
+# Option handling
+foreach my $option (qw(10pt 11pt 12pt 
+		       letterpaper legalpaper executivepaper a4paper a5paper b5paper
+		       landscape
+		       final draft
+		       oneside twoside
+		       openright openany
+		       onecolumn twocolumn 
+		       notitlepage titlepage
+		       openbib
+		       leqno fleqn)){
+  DeclareOption($option,undef); }
+ProcessOptions();
+
+#**********************************************************************
+# Document structure.
+RelaxNGSchema("LaTeXML");
+
+DefMacro('\@ptsize','0');	# should depend on options...
+RawTeX(<<'EOTeX');
+\newif\if@restonecol
+\newif\if@titlepage
+\@titlepagefalse
+EOTeX
+
+#**********************************************************************
+# The core sectioning commands are defined in LaTeX.pm
+# but the counter setup, etc, depends on article
+Let('\thedocument@ID','\@empty');
+NewCounter('part',         'document',     idprefix=>'Pt', nested=>['chapter']);
+NewCounter('chapter',      'document',     idprefix=>'Ch', nested=>['section']);
+NewCounter('section',      'chapter',      idprefix=>'S',  nested=>['subsection']);
+NewCounter('subsection',   'section',      idprefix=>'SS', nested=>['subsubsection']);
+NewCounter('subsubsection','subsection',   idprefix=>'SSS',nested=>['paragraph']);
+NewCounter('paragraph',    'subsubsection',idprefix=>'P',  nested=>['subparagraph']);
+NewCounter('subparagraph', 'paragraph',    idprefix=>'SP', nested=>['equation','figure','table']);
+
+DefMacro('\thepart',         '\Roman{part}');
+DefMacro('\thechapter',      '\arabic{chapter}');
+DefMacro('\thesection',      '\thechapter.\arabic{section}');
+DefMacro('\thesubsection',   '\thesection.\arabic{subsection}');
+DefMacro('\thesubsubsection','\thesubsection.\arabic{subsubsection}');
+DefMacro('\theparagraph',    '');
+DefMacro('\thesubparagraph', '');
+
+NewCounter('equation', 'chapter', idprefix=>'E');
+NewCounter('figure',   'chapter', idprefix=>'F');
+NewCounter('table',    'chapter', idprefix=>'T');
+DefMacro('\theequation', '\thechapter.\arabic{equation}');
+DefMacro('\thefigure',   '\thechapter.\arabic{figure}');
+DefMacro('\thetable',    '\thechapter.\arabic{table}');
+
+NewCounter('@itemizei',   'chapter',    idprefix=>'I');
+NewCounter('@itemizeii',  '@itemizei',  idprefix=>'I');
+NewCounter('@itemizeiii', '@itemizeii', idprefix=>'I');
+NewCounter('@itemizeiv',  '@itemizeiii',idprefix=>'I');
+NewCounter('@itemizev',   '@itemizeiv', idprefix=>'I');
+NewCounter('@itemizevi',  '@itemizev',  idprefix=>'I');
+
+NewCounter('enumi',  '@itemizei',   idprefix=>'i');
+NewCounter('enumii', '@itemizeii',  idprefix=>'i');
+NewCounter('enumiii','@itemizeiii', idprefix=>'i');
+NewCounter('enumiv', '@itemizeiv',  idprefix=>'i');
+# A couple of more levels, since we use these for ID's!
+NewCounter('enumv',  '@itemizev',   idprefix=>'i');
+NewCounter('enumvi', '@itemizevi',  idprefix=>'i');
+
+DefMacro('\theenumi',           '\arabic{enumi}');
+DefMacro('\theenumii',          '\alph{enumii}');
+DefMacro('\theenumiii',         '\roman{enumiii}');
+DefMacro('\theenumiv',          '\Alph{enumiv}');
+
+Tag('ltx:appendix',autoClose=>1);
+AssignValue(counter_for_appendix=>'chapter');
+DefMacro('\appendix@chapter', '\@startsection{appendix}{}{}{}{}{}');
+DefPrimitive('\appendix',sub{
+  NewCounter('chapter', 'document', idprefix=>'A',nested=>['section']);
+  DefMacro('\thechapter', '\Alph{chapter}',scope=>'global');
+  Let(T_CS('\chapter'),T_CS('\appendix@chapter'),'global');
+  Let(T_CS('\appendix'),T_CS('\relax'),'global');
+ });
+
+# General document structure:
+# \documentclass{..}
+# preamble
+# \begin{document}
+# \frontmatter
+DefPrimitive('\frontmatter',undef); # Do we need this?
+# frontmatter stuff
+# \maketitle
+# \include various preface, introduction, etc
+# \mainmatter
+DefPrimitive('\mainmatter',undef);
+# \include various chapters, appendices
+# \backmatter
+DefPrimitive('\backmatter',undef);
+# commands for bibliography, indices
+# \end{document}
+
+#**********************************************************************
+1;

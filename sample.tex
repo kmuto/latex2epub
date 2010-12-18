@@ -1,0 +1,141 @@
+\documentclass{jsbook}
+
+\title{LaTeXしよう!抜粋}
+\author{武藤 健志}
+
+\begin{document}
+
+\chapter{LaTeXしよう!}
+\label{chap:latex}
+
+\textbf{すごく古い文章しかないので、何かいいフリードキュメント希望}
+
+「レポートやらなくちゃいけないんだけど、ワープロって数式がうまく出ないんだよな」
+
+「ワープロの印刷ってなんか見にくいよな」
+
+「ここに3cm位のスペースを開けて欲しいんだけど、どうやって入れるかな」
+
+ワープロを使っていると、その表現力のなさ\footnote{Microsoft Wordなどではかなり改善されてはいますが、思いどおりにはなかなかなってくれないものです。}に驚かされ、外字を作る手間などで肝心のレポートの内容がおろそかになってしまいます。
+
+Donald Knuth教授が開発した\TeX (テック、テフ)は、このようなワープロとはまったく違う発想で文章を作成していきます。彼は、通常のワープロのように、「見たとおりの出力が得られる3」事にこだわりませんでした。「写植工でもないトーシローがそんな簡単に読みやすいデザインで文書を作ることをできるわけない」という発想をしたのかどうかはわかりませんが、彼は写植を機械に任せ、人間はテキストに写植をさせる「コマンド」を埋めこむことで印刷文書を作成する、という\TeX システムを考案しました。\TeX においては、テキストだけを見ても、それがどのように印刷されることになるかはわかりません。しかし、機械の内部で写植の作業を行うことで「見やすい」文章が作成されます。 
+
+Leslie Lamportは、この\TeX システムをさらに使いやすく改良した\LaTeX (ラテック、ラーテック)を作成しました。そして、これを日本語化したのが、NTT作成のj\LaTeX (ジェーラテック)やASCII作成のp\LaTeX  です。さらに機能をアップしたものに\LaTeX2e があります。この日本語化はASCIIが行っており、p\LaTeX2e という名前で公開されています。 
+
+\section{LaTeXの構造とコマンド}
+\label{sec:latexcmd}
+
+\verb+\begin{document}+は、文書がここから始まることを意味します。これがなくては文書が始まりません。おまじないと思ってください。
+
+ここから本文が始まります。書いた文書と出力した結果を比較してみると、
+
+\begin{itemize}
+\item 一番最初の文字はインデント(字下げ)されている。
+\item 書いた文書の改行は無視され、適当なところで自動的に改行される。
+\item 空白がいくつ入っても、1つにしか勘定されていない。
+\item 空行が入ると、その次の行が次の段落とされ、インデントされる。
+\end{itemize}
+
+\noindent
+のようなことがわかります。 
+
+\section{文字}
+\label{sec:symbols}
+
+\subsection{フォント}
+\label{sec:font}
+
+\subsubsection{書体}
+\label{sec:shape}
+
+\LaTeX では、いくつかの書体を使うことができます。書体を変えるには、変えたい部分を\verb+{\+\emph{Font Name}〜\verb+}+のように囲みます。書体の変更を試してみます。
+
+\begin{enumerate}
+\item 通常のFontです
+\item \textrm{RomanFontです}
+\item \emph{EmphaticFontです}
+\item \textbf{BoldFontです}
+\item \textit{ItalicFontです}
+\item \textsc{SmallCapsFontです}
+\item \textsl{SlantedFontです}
+\item \texttt{TypeWriterFontです}
+\item \textsf{SansSerifFontです}
+\end{enumerate}
+
+\subsubsection{大きさ}
+\label{sec:fontsize}
+
+文字の大きさは、10種類あります。書体と同様に、変えたい部分を\verb+{\+\emph{Size Name}〜\verb+}+のように囲みます。
+
+以下で見てみましょう。
+
+{\tiny TinyFont}
+{\scriptsize ScriptFont}
+{\footnotesize FootnoteFont}
+{\small SmallFont}
+{\normalsize NormalFont}
+{\large largeFont}
+{\Large LargeFont}
+{\LARGE LARGEFont}
+{\huge hugeFont}
+{\Huge HugeFont}
+
+\subsection{アクセント}
+\label{sec:accent}
+
+ワープロでは表現の難しいアクセント表示ですが、\LaTeX では比較的簡単です。実際に見てみましょう。
+
+\begin{table}[htbp]
+  \begin{tabular}[htbp]{|c|l|}\hline
+    文字&入力\\ \hline
+    \'{o}&\verb+\`{o}+\\
+    \'{o}&\verb+\'{o}+\\
+    \^{o}&\verb+\^{o}+\\
+    \"{o}&\verb+\"{o}+\\
+    \~{o}&\verb+\~{o}+\\
+    \={o}&\verb+\={o}+\\
+    \.{o}&\verb+\.{o}+\\
+    \u{o}&\verb+\u{o}+\\
+    \v{o}&\verb+\v{o}+\\
+    \H{o}&\verb+\H{o}+\\
+    \t{oo}&\verb+\t{oo}+\\
+    \c{o}&\verb+\c{o}+\\
+    \d{o}&\verb+\d{o}+\\
+    \b{o}&\verb+\b{o}+\\ \hline
+  \end{tabular}
+  \caption{アクセント記号}
+  \label{tab:accent}
+\end{table}
+
+\section{数式}
+\label{sec:equation}
+
+\subsection{数式モード}
+\label{sec:mathmode}
+
+\LaTeX で数式を表示させるためには、\textbf{数式モード}と呼ばれるモードに入らなければなりません。数式モードに入るには、\verb+\begin{math}+で始めるか、その省略形の \verb+$+あるいは \verb+\(+で始めます。数式モードの終わりは、 \verb+\end{math}+、 \verb+$+、\verb+\(+で示します。
+
+\subsection{添字、肩付き文字}
+\label{sec:script}
+
+$x_{i}$のような添字は、\verb+$x_{i}$+のように、\verb+_+を使うことで表示します。
+
+\subsection{割り算}
+\label{sec:divert}
+
+$1/n$のような分数は、そのまま1/nと書きます。$\frac{1}{n}$のような表現を行いたいときには、\verb+[\frac{1}{n}]+を使います。
+
+\subsection{配列}
+\label{sec:array}
+
+配列を表現するには、 arrayという環境を使います。 
+
+\[
+\begin{array}{clr}
+1132 & a+b & 0 \\
+20   & b+d & 33 \\
+128  & a'-c & -1,980
+\end{array}
+\]
+
+\end{document}
