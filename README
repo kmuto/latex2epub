@@ -1,7 +1,21 @@
 latex2epub.rb
 
-needs:
-  epubmaker.rb and uuid.rb. review.git has them. (git://github.com/kmuto/review.git)
+[Usage]
+  latex2epub LaTeXfile YAMLfile
+
+(see sample.tex and sample.yaml for reference)
+
+[Dependency]
+  epubmaker.rb and uuid.rb: review.git has them. (git://github.com/kmuto/review.git)
   LaTeX environment; To use Japanese, you have to setup ptexlive environment.
+  LaTeXML: http://dlmf.nist.gov/LaTeXML/ (for Debian, you can take latexml package)
   Ghostscript.
   dvips.
+  zip.
+
+[License]
+- latex2epub.rb, sample.tex, sample.yaml: GNU LESSER GENERAL PUBLIC
+  LICENSE Version 2.1. See COPYING.
+- Files under libs/perl/LaTeXML, libs/style-en, libs/style-ja:
+  Public domain software, produced as part of work done by the 
+  United States Government & not subject to copyright in the US.
