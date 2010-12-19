@@ -21,6 +21,8 @@ rescue LoadError
   require 'epubmaker'
 end
 
+include EPUBMaker
+
 def main
   @params = {
     "toclevel" => 3,
@@ -28,11 +30,13 @@ def main
     "latexml" => "latexml --quiet", # command and options
     "latexmlpost" => "latexmlpost --split", # command and options
     "latex2epubdir" => Pathname.new(__FILE__).realpath.dirname,
+    "epubversion" => 2,
     "mathml" => nil,
     "latexcmd" => "latex",
     "dvipscmd" => "dvips -q -S1 -i -E -j0",
   }
 
+  # FIXME: more options
   if ARGV.size != 2
     STDERR.puts <<EOT
 latex2epub.rb  TeXfile  YAMLfile
@@ -41,22 +45,18 @@ EOT
   end
 
   yamlfile = ARGV[1]
-  @params = @params.merge(EPUBMaker.load_yaml(yamlfile))
-  @epub = EPUBMaker.new(2, @params)
+  @params = @params.merge(Producer.load(yamlfile))
+  @epub = Producer.new(@params)
   bookname = @params["bookname"]
-
-  if File.exist?("#{bookname}.epub") && (@params["debug"].nil? && @params["basedebug"].nil?)
-    STDERR.puts "#{bookname}.epub exists. Please remove or rename it first."
-    exit 1
-  end
 
   texfile = ARGV[0]
   xmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xml')
   xhtmlfile = File.basename(texfile).sub(/\.tex\Z/i, '.xhtml')
   
-  basetmp = "output"
+  basetmp = "#{bookname}-output"
   basetmp = Dir.mktmpdir if @params["basedebug"].nil?
 
+  # Override
   ENV["PERL5LIB"] = "#{@params["latex2epubdir"]}/libs/perl"
   ENV["LATEXMLLATEXCMD"] = @params["latexcmd"]
   ENV["LATEXMLDVIPSCMD"] = @params["dvipscmd"]
@@ -76,10 +76,10 @@ EOT
   Process.waitall
   File.unlink("#{basetmp}/#{xmlfile}") if @params["basedebug"].nil?
 
-  @epub.data.push(Ec.new({ "href" => xhtmlfile,
-                           "title" => @params["title"],
-                           "level" => 1,
-                         }))
+  @epub.contents.push(Content.new({ "file" => xhtmlfile,
+                                    "title" => @params["title"],
+                                    "level" => 1,
+                                  }))
 
   @registered = [xhtmlfile]
   tocparse(basetmp, xhtmlfile)
@@ -89,7 +89,7 @@ EOT
   epubtmpdir = @params["debug"].nil? ? nil : "#{Dir.pwd}/#{bookname}"
   Dir.mkdir(bookname) unless @params["debug"].nil?
 
-  @epub.makeepub("#{bookname}.epub", basetmp, epubtmpdir)
+  @epub.produce("#{bookname}.epub", basetmp, epubtmpdir)
   FileUtils.rm_r(basetmp) if @params["basedebug"].nil?
 end
 
@@ -103,12 +103,12 @@ def importotherfiles(dir, base=nil)
     else
       dir.chop! if dir =~ /\/\Z/
       if base.nil?
-        @epub.data.push(Ec.new({ "href" => "#{dir}/#{f}"}))
+        @epub.contents.push(Content.new({ "file" => "#{dir}/#{f}"}))
       else
         if dir == base
-          @epub.data.push(Ec.new({ "href" => "#{f}"}))
+          @epub.contents.push(Content.new({ "file" => "#{f}"}))
         else
-          @epub.data.push(Ec.new({ "href" => "#{dir.sub(base + "/", '')}/#{f}"}))
+          @epub.contents.push(Content.new({ "file" => "#{dir.sub(base + "/", '')}/#{f}"}))
         end
       end
     end
@@ -120,11 +120,11 @@ def tocparse(base, file)
   doc = Document.new(File.new("#{base}/#{file}")).root
   doc.each_element(%Q(//head/link[@rel="next"])) do |e|
     level = e.attributes["href"].split(".").size - 1
-    @epub.data.push(Ec.new({
-                               "href" => e.attributes["href"],
-                               "title" => e.attributes["title"],
-                               "level" => level,
-                             }))
+    @epub.contents.push(Content.new({
+                                      "file" => e.attributes["href"],
+                                      "title" => e.attributes["title"],
+                                      "level" => level,
+                                    }))
     @registered << e.attributes["href"]
     tocparse(base, e.attributes["href"])
   end
