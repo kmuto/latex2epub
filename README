@@ -14,7 +14,7 @@ latex2epub.rb
   zip.
 
 [License]
-- latex2epub.rb, sample.tex, sample.yaml: GNU LESSER GENERAL PUBLIC
+- latex2epub.rb, sample.tex, sample*.yaml: GNU LESSER GENERAL PUBLIC
   LICENSE Version 2.1. See COPYING.
 - Files under libs/perl/LaTeXML, libs/style-en, libs/style-ja:
   Public domain software, produced as part of work done by the 

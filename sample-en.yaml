@@ -1,0 +1,87 @@
+# YAML sample file
+# use UTF-8 in this file.
+
+# Book file name
+bookname: sample
+# Contents language (ISO-639 based)
+language: en
+# Title
+title: LaTeX2EPUB Sample
+
+# EPUB book Identifier. (Default: Time based random value)
+# urnid: urn:uid:http://example.com/some-book-title/1.0.2/
+
+# isbn: ISBN value
+
+# Author(s). By using YAML array style, multiple values can be defined.
+aut: Kenshi Muto
+
+# Optional EPUB parameters (array values are accpeted also). 
+# a-* define values of <creator>. Others define values of <contributor>.
+# See http://www.idpf.org/doc_library/epub/OPF_2.0.1_draft.htm
+# a-adp, adp: Adaptor
+# a-ann, ann: Annotator
+# a-arr, arr: Arranger
+# a-art, art: Artist
+# a-asn, asn: Associated name
+# a-aqt, aqt: Author in quotations or text extracts
+# a-aft, aft: Author of afterword, colophon, etc.
+# a-aui, aui: Author of introduction, etc.
+# a-ant, ant: Bibliographic antecedent
+# a-bkp, bkp: Book producer
+# a-clb, clb: Collaborator
+# a-cmm, cmm: Commentator
+# a-dsr, dsr: Designer
+# a-edt, edt: Editor
+# a-ill, ill: Illustrator
+# a-lyr, lyr: Lyricist
+# a-mdc, mdc: Metadata contact
+# a-mus, mus: Musician
+# a-nrt, nrt: Narrator
+# a-oth, oth: Other
+# a-pht, pht: Photographer
+# a-prt, prt: Printer
+# a-red, red: Redactor
+# a-rev, rev: Reviewer
+# a-spn, spn: Sponsor
+# a-ths, ths: Thesis advisor
+# a-trc, trc: Transcriber
+# a-trl, trl: Translator
+
+# rights: Statement about rights or a reference to one
+rights: 2010 Kenshi Muto
+# date: Date of publication. (Default: today's date YYYY-MM-DD)
+# description: Description of the publication's content
+# subject: phrase or keyword (array acceptable)
+# type: Category (array acceptable)
+# format: Media type and feature (array acceptable)
+# source: Information regarding a prior resource (array acceptable)
+# relation: Auxiliary resource (array acceptable)
+# coverage: Extent or scope (array acceptable)
+
+# htmlext: Extention of HTML file (default: html)
+htmlext: xhtml
+# cover: Coverpage file name (default: <bookname>.xhtml)
+#
+# coverimage: Cover image file
+#
+# CSS file (array acceptable)
+#stylesheet: stylesheet.css
+
+# Maximum header level for table of contents
+toclevel: 3
+
+# Make own table of contents?
+# mytoc:
+# Own TOC name (default: toc.xhtml)
+# tocfile: toc.xhtml
+
+# Make colophon page? If 'true' is defined, it produce default colophon. Other value is treat as file name.
+# colophon: true
+# pubhistory: History paragraph in colophon page
+# Use MathML? (or make image?)
+# mathml: true
+# LaTeX compile command for latexml (default: latex)
+# latexcmd: platex --kanji=utf8
+# DVIPS command for latexml (default: dvips -q -S1 -i -E -j0)
+# dvipscmd: dvips -q -S1 -i -E -j0
